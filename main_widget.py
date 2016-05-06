@@ -24,12 +24,14 @@ class MainWidget(qtBaseClass, uiWidget):
         qtBaseClass.__init__(self, parent)
         self.setupUi(self)
         self.iface = iface
+
+        self.github = GitHubApi()
+
+
         self._connect_signals()
 
         self._load_available_trackers()
         self._load_settings()
-
-        self.github = GitHubApi()
 
         self._enable_submit()
 
@@ -44,15 +46,14 @@ class MainWidget(qtBaseClass, uiWidget):
 
         token = settings.value("token", "", type=str)
         self.TokenLineEdit.setText(token)
+        self._token_selected()
 
         plugin = settings.value("plugin", "", type=str)
         idx = self.PluginChooser.findText(plugin)
         if idx != -1:
             self.PluginChooser.setCurrentIndex(idx)
+        self._plugin_selected()
 
-        tracker = settings.value("tracker", "", type=str)
-        self.TrackerLabel.setText(tracker)
-        
     def _connect_signals(self):
         self.PluginChooser.activated.connect(self._plugin_selected)
         self.TokenLineEdit.editingFinished.connect(self._token_selected)
@@ -99,7 +100,6 @@ class MainWidget(qtBaseClass, uiWidget):
         self.github.set_tracker(tracker)
         self.TrackerLabel.setText(str(tracker))
         self._save_settings("plugin", plugin)
-        self._save_settings("tracker", tracker)
 
         self._enable_submit()
 

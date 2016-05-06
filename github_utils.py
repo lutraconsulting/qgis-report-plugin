@@ -21,20 +21,25 @@ class GitHubApi():
         self.access_token = None
 
     def is_valid(self):
+        print self.tracker, self.access_token
+
         return (self.tracker != None) and (self.access_token != None)
 
     def set_tracker(self, tracker):
         API = "https://api.github.com/repos/"
-        tracker = tracker.replace("https://github.com/", API)
-        tracker = tracker.replace("https://www.github.com/", API)
-        tracker = tracker.replace("/issues/", "")
-        tracker = tracker.replace("/issues", "")
-        if not tracker.endswith("/"):
-            tracker += "/"
+        if tracker:
+            tracker = tracker.replace("https://github.com/", API)
+            tracker = tracker.replace("https://www.github.com/", API)
+            tracker = tracker.replace("/issues/", "")
+            tracker = tracker.replace("/issues", "")
+            if not tracker.endswith("/"):
+                tracker += "/"
 
         self.tracker = tracker
 
     def set_access_token(self, access_token):
+        if access_token:
+            access_token = access_token.strip()
         self.access_token = access_token
 
     def _post(self, key, payload):
