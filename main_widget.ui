@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ReportIssueDialog</class>
+ <widget class="QDialog" name="ReportIssueDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>894</width>
+    <height>947</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Report issue</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QGroupBox" name="TrackerGroupBox">
+     <property name="title">
+      <string>Tracker Selection</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="2" column="0">
+       <widget class="QComboBox" name="PluginChooser"/>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="TrackerLabel">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="TokenLineEdit"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>GitHub access token</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="IssueGroupBox">
+     <property name="title">
+      <string>Issue</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="TitleLabel">
+        <property name="text">
+         <string>Title</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="TitleEditLine"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="LabelsLabel">
+        <property name="text">
+         <string>Labels</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="LabelsLineEdit">
+        <property name="text">
+         <string>bug</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="DescriptionLabel">
+        <property name="text">
+         <string>Description</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="DescriptionTextEdit"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="SubmitButton">
+     <property name="text">
+      <string>SUBMIT</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="ErrorLabel">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

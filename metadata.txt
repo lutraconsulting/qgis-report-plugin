@@ -1,0 +1,9 @@
+[general]
+name=Report Plugin
+description=Plugin to fast reporting of issues to the tracker
+version=0.1
+qgisMinimumVersion=2.0
+author=Peter Petrik for Lutra Consulting
+email=zilolv@gmail.com
+
+tracker=https://github.com/lutraconsulting/qgis-report-plugin
