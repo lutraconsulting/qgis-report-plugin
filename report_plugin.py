@@ -9,30 +9,63 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
-from PyQt4.QtGui import QAction, QIcon
+from PyQt4.QtGui import QAction, QIcon, QMessageBox
 # Initialize Qt resources from file resources.py
 import resources
 
 import main_widget
 
+import qgis.utils
+from qgis.utils import iface
+
+old_show_exception = None
+report_dialog = None
+
+def show_report_dialog(last_error=None):
+    global report_dialog
+    report_dialog = main_widget.MainWidget(last_error)
+    report_dialog.show()
+    report_dialog.exec_()
+
+def show_report_exception(etype, value, tb, msg, *args, **kwargs):
+    global old_show_exception
+
+    if old_show_exception:
+        old_show_exception(etype, value, tb, msg, *args, **kwargs)
+
+    reply = QMessageBox.question(None,
+                                 "Confirmation",
+                                 "Do you want to report the bug?",
+                                 QMessageBox.Yes | QMessageBox.No)
+
+    if reply == QMessageBox.Yes:
+        last_error = {'etype': etype, 'value': value, 'tb': tb, 'msg': msg}
+        print "here"
+        show_report_dialog(last_error)
+
 class ReportPlugin:
-    def __init__(self, iface):
-        self.iface = iface
-        self.main_widget = None
+    def __init__(self):
+        self.action = None
 
     def initGui(self):
         icon = QIcon(':/plugins/qgis-report-plugin/images/icon.png')
-        self.action = QAction(icon, "Report!", self.iface.mainWindow())
+        self.action = QAction(icon, "Report!", iface.mainWindow())
         self.action.triggered.connect(self.run)
-        self.iface.addToolBarIcon(self.action)
+        iface.addToolBarIcon(self.action)
+
+        # hook to exception handling
+        global old_show_exception
+        old_show_exception = qgis.utils.showException
+        qgis.utils.showException = show_report_exception
 
     def unload(self):
-        self.iface.removeToolBarIcon(self.action)
+        iface.removeToolBarIcon(self.action)
         del self.action
 
         self.main_dlg = None
+        # unhook from exception handling
+        global old_show_exception
+        qgis.utils.showException = old_show_exception
 
     def run(self):
-        self.main_widget = main_widget.MainWidget(self.iface)
-        self.main_widget.show()
-        self.main_widget.exec_()
+        show_report_dialog()

@@ -10,28 +10,34 @@
 #---------------------------------------------------------------------
 
 from PyQt4 import uic
+import platform
+import traceback
+
 import utils
 from github_utils import GitHubApiError, GitHubApi
 from PyQt4.QtCore import QSettings
+from qgis.core import QGis
 
-from qgis.utils import plugins, pluginMetadata
+from qgis.utils import plugins, pluginMetadata, pluginDirectory
+from qgis.utils import iface
 
 ui_file = utils.get_file_path('main_widget.ui')
 uiWidget, qtBaseClass = uic.loadUiType(ui_file)
 
 class MainWidget(qtBaseClass, uiWidget):
-    def __init__(self,iface, parent=None):
+    def __init__(self, last_exception=None, parent=None):
         qtBaseClass.__init__(self, parent)
         self.setupUi(self)
-        self.iface = iface
-
         self.github = GitHubApi()
-
+        self.last_exception = last_exception
 
         self._connect_signals()
 
         self._load_available_trackers()
         self._load_settings()
+
+        self._load_last_error()
+        self._load_additional_info()
 
         self._enable_submit()
 
@@ -39,6 +45,51 @@ class MainWidget(qtBaseClass, uiWidget):
         settings = QSettings()
         settings.beginGroup("/qgis-report-plugin")
         settings.setValue(key, val)
+
+    def _find_plugin_from_exception(self, exc_fileline):
+         items = [self.PluginChooser.itemText(i) for i in range(self.PluginChooser.count())]
+         for item in items:
+            if item and item in exc_fileline: #skip empty item
+                self._set_chosen_plugin(item)
+                return
+         self._set_err("unable to determine plugin from exception text")
+
+
+    def _load_last_error(self):
+        if self.last_exception:
+            desc = self.DescriptionTextEdit.toPlainText()
+
+            msg = self.last_exception['msg']
+            if msg is None:
+                msg = ""
+
+            error = ''
+
+            lst = traceback.format_exception(self.last_exception['etype'], self.last_exception['value'], self.last_exception['tb'])
+            for s in lst:
+                error += s.decode('utf-8', 'replace') if hasattr(s, 'decode') else s
+
+            main_error = lst[-1].decode('utf-8', 'replace') if hasattr(lst[-1], 'decode') else lst[-1]
+
+            fileline = lst[-2].decode('utf-8', 'replace') if hasattr(lst[-2], 'decode') else lst[-2]
+            self._find_plugin_from_exception(fileline)
+
+            desc += "\n{} {}".format(msg, error)
+
+            self.DescriptionTextEdit.setText(desc)
+            self.TitleEditLine.setText("Uncaught " + main_error)
+            self.LabelsLineEdit.setText("bug")
+
+    def _load_additional_info(self):
+        desc = self.DescriptionTextEdit.toPlainText()
+        desc += "\nQGIS {} on {} {}\n".format(QGis.QGIS_VERSION, platform.system(), platform.release())
+        self.DescriptionTextEdit.setText(desc)
+
+    def _set_chosen_plugin(self, plugin):
+        idx = self.PluginChooser.findText(plugin)
+        if idx != -1:
+            self.PluginChooser.setCurrentIndex(idx)
+        self._plugin_selected()
 
     def _load_settings(self):
         settings = QSettings()
@@ -49,10 +100,7 @@ class MainWidget(qtBaseClass, uiWidget):
         self._token_selected()
 
         plugin = settings.value("plugin", "", type=str)
-        idx = self.PluginChooser.findText(plugin)
-        if idx != -1:
-            self.PluginChooser.setCurrentIndex(idx)
-        self._plugin_selected()
+        self._set_chosen_plugin(plugin)
 
     def _connect_signals(self):
         self.PluginChooser.activated.connect(self._plugin_selected)
