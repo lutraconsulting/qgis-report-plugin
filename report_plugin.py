@@ -9,7 +9,9 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
-from PyQt4.QtGui import QAction
+from PyQt4.QtGui import QAction, QIcon
+# Initialize Qt resources from file resources.py
+import resources
 
 import main_widget
 
@@ -19,7 +21,8 @@ class ReportPlugin:
         self.main_widget = None
 
     def initGui(self):
-        self.action = QAction("Report!", self.iface.mainWindow())
+        icon = QIcon(':/plugins/qgis-report-plugin/images/icon.png')
+        self.action = QAction(icon, "Report!", self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         self.iface.addToolBarIcon(self.action)
 
