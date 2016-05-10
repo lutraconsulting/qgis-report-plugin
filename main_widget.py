@@ -75,16 +75,22 @@ class MainWidget(qtBaseClass, uiWidget):
             fileline = lst[-2].decode('utf-8', 'replace') if hasattr(lst[-2], 'decode') else lst[-2]
             self._find_plugin_from_exception(fileline)
 
-            desc += "\n{} {}".format(msg, error)
+            desc += "{} {}\n".format(msg, error)
 
             self.DescriptionTextEdit.setText(desc)
             self.TitleEditLine.setText("Uncaught " + main_error)
             self.LabelsLineEdit.setText("bug")
 
     def _load_additional_info(self):
-        desc = self.DescriptionTextEdit.toPlainText()
-        desc += "\nQGIS {} on {} {}\n".format(QGis.QGIS_VERSION, platform.system(), platform.release())
-        self.DescriptionTextEdit.setText(desc)
+        plugin = self.PluginChooser.itemText(self.PluginChooser.currentIndex())
+
+        qgis_info = str(QGis.QGIS_VERSION)
+        platform_info = "{} {}".format(platform.system(), platform.release())
+        plugin_info = "{} {}".format(plugin, pluginMetadata(plugin, "version"))
+
+        txt = "{}, QGIS {} on {}".format(plugin_info, qgis_info, platform_info)
+
+        self.AdditionalInfoLineEdit.setText(txt)
 
     def _set_chosen_plugin(self, plugin):
         idx = self.PluginChooser.findText(plugin)
@@ -178,6 +184,7 @@ class MainWidget(qtBaseClass, uiWidget):
         self._save_settings("plugin", plugin)
 
         self._enable_widgets()
+        self._load_additional_info()
 
     def _load_available_trackers(self):
         self.PluginChooser.addItem("", None)
@@ -192,9 +199,10 @@ class MainWidget(qtBaseClass, uiWidget):
             title = self.TitleEditLine.text()
             labels = self.LabelsLineEdit.text()
             desc = self.DescriptionTextEdit.toPlainText()
+            additional_info = self.AdditionalInfoLineEdit.text()
 
             try:
-                link, number = self.github.create_issue(title, labels, desc)
+                link, number = self.github.create_issue(title, labels, "{}\n{}".format(desc, additional_info))
                 msgBox = QMessageBox()
                 msgBox.setTextFormat(Qt.RichText)
                 msgBox.setText("GitHub <a href='{}'>issue #{}</a> created".format(link, number));

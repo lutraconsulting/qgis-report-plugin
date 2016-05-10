@@ -103,6 +103,9 @@
        <widget class="QTextEdit" name="DescriptionTextEdit"/>
       </item>
       <item>
+       <widget class="QLineEdit" name="AdditionalInfoLineEdit"/>
+      </item>
+      <item>
        <widget class="QWidget" name="widget" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
