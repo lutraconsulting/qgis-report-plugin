@@ -40,12 +40,22 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="TokenLineEdit"/>
+       <widget class="QLineEdit" name="TokenLineEdit">
+        <property name="placeholderText">
+         <string/>
+        </property>
+       </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="TokenLabel">
         <property name="text">
-         <string>GitHub access token</string>
+         <string>&lt;a href=&quot;https://github.com/settings/tokens/new&quot;&gt; GitHub access token&lt;/a&gt;</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
+        </property>
+        <property name="openExternalLinks">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
