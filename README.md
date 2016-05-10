@@ -1,5 +1,6 @@
 # QGIS Report Plugin
 
+[images/icon_128.png](images/icon_128.png "icon")
 What you want to quicky report issues to GitHub plugin issue tracker..
 
 ## How to use it?
