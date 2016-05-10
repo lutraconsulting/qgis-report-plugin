@@ -1,6 +1,7 @@
 # QGIS Report Plugin
 
-[images/icon_128.png](images/icon_128.png "icon")
+![icon](https://raw.githubusercontent.com/lutraconsulting/qgis-report-plugin/master/images/icon_128.png)
+
 What you want to quicky report issues to GitHub plugin issue tracker..
 
 ## How to use it?
