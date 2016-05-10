@@ -11,3 +11,7 @@ What you want to quicky report issues to GitHub plugin issue tracker..
 5. Click on Generate Token, copy the token to the plugin
 6. Select plugin for which you want to report bug
 7. Fill title and description and Submit!
+
+## Notice
+
+It may not use with https://github.com/wonder-sk/qgis-first-aid-plugin as they both hook the python exception handling
