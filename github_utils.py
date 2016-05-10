@@ -52,6 +52,20 @@ class GitHubApi():
         if r.status_code in ok_codes:
             raise GitHubApiError("Invalid API GitHub Call ({})".format(r.status_code))
 
+        return r.json()
+
+    def _get(self, key):
+        headers = {'Authorization': 'token ' + self.access_token}
+        url = self.tracker + key
+        r = requests.get(url, headers=headers)
+
+        ok_codes = ['200', '201', '202']
+
+        if r.status_code in ok_codes:
+            raise GitHubApiError("Invalid API GitHub Call ({})".format(r.status_code))
+
+        return r.json()
+
     def create_issue(self, title, labels=None, description=None):
         payload = {}
         payload['title'] = title
@@ -61,4 +75,12 @@ class GitHubApi():
             lab_arr = labels.split(" ;")
             payload['labels'] = lab_arr
 
-        self._post("issues", payload)
+        resp = self._post("issues", payload)
+        return resp['html_url'], resp['number']
+
+    def get_labels(self):
+        labels = self._get("labels")
+        ret = []
+        for l in labels:
+            ret += [l['name']]
+        return ret

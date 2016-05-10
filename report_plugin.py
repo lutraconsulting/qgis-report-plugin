@@ -20,9 +20,17 @@ from qgis.utils import iface
 
 old_show_exception = None
 report_dialog = None
+last_error = None
+
+def close_report_dialog():
+    global report_dialog
+    if report_dialog:
+        report_dialog.close()
+        report_dialog = None
 
 def show_report_dialog(last_error=None):
     global report_dialog
+    close_report_dialog()
     report_dialog = main_widget.MainWidget(last_error)
     report_dialog.show()
     report_dialog.exec_()
@@ -39,6 +47,7 @@ def show_report_exception(etype, value, tb, msg, *args, **kwargs):
                                  QMessageBox.Yes | QMessageBox.No)
 
     if reply == QMessageBox.Yes:
+
         last_error = {'etype': etype, 'value': value, 'tb': tb, 'msg': msg}
         print "here"
         show_report_dialog(last_error)
@@ -62,7 +71,8 @@ class ReportPlugin:
         iface.removeToolBarIcon(self.action)
         del self.action
 
-        self.main_dlg = None
+        close_report_dialog()
+        
         # unhook from exception handling
         global old_show_exception
         qgis.utils.showException = old_show_exception
