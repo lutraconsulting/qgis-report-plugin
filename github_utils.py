@@ -9,8 +9,18 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
-import requests
+import utils
 import json
+
+try:
+    raise ImportError
+    import requests
+except ImportError:
+    import os
+    import sys
+    request_egg = utils.get_file_path('deps', 'requests-2.10.0-py2.py3-none-any.whl')
+    sys.path.append(request_egg)
+    import requests
 
 class GitHubApiError(Exception):
     pass
