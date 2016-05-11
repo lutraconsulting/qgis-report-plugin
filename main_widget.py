@@ -12,6 +12,7 @@
 from PyQt4 import uic
 import platform
 import traceback
+import conf_widget
 
 import utils
 from github_utils import GitHubApiError, GitHubApi
@@ -29,6 +30,9 @@ class MainWidget(qtBaseClass, uiWidget):
     def __init__(self, last_exception=None, parent=None):
         qtBaseClass.__init__(self, parent)
         self.setupUi(self)
+
+        self.conf_widget = None
+
         self.github = GitHubApi()
         self.last_exception = last_exception
 
@@ -41,11 +45,6 @@ class MainWidget(qtBaseClass, uiWidget):
         self._load_additional_info()
 
         self._enable_issues_group()
-
-    def _save_settings(self, key, val):
-        settings = QSettings()
-        settings.beginGroup("/qgis-report-plugin")
-        settings.setValue(key, val)
 
     def _find_plugin_from_exception(self, exc_fileline):
          items = [self.PluginChooser.itemText(i) for i in range(self.PluginChooser.count())]
@@ -63,6 +62,8 @@ class MainWidget(qtBaseClass, uiWidget):
             msg = self.last_exception['msg']
             if msg is None:
                 msg = ""
+            else:
+                msg += "\n"
 
             error = ''
 
@@ -74,11 +75,11 @@ class MainWidget(qtBaseClass, uiWidget):
 
             self._find_plugin_from_exception(error)
 
-            desc += "{} {}\n".format(msg, error)
+            desc += "{}Steps to reproduce\n 1. First \n 2. Second \n 3. Third \n\n```\n{}\n```".format(msg, error)
 
             self.DescriptionTextEdit.setText(desc)
             self.TitleEditLine.setText("Uncaught " + main_error)
-            self.LabelsLineEdit.setText("bug")
+            self._set_selected_label("bug")
 
     def _load_additional_info(self):
         plugin = self.PluginChooser.itemText(self.PluginChooser.currentIndex())
@@ -98,44 +99,51 @@ class MainWidget(qtBaseClass, uiWidget):
         self._plugin_selected()
 
     def _load_settings(self):
-        settings = QSettings()
-        settings.beginGroup("/qgis-report-plugin")
-
-        token = settings.value("token", "", type=str)
-        self.TokenLineEdit.setText(token)
-        self._token_selected()
-
-        plugin = settings.value("plugin", "", type=str)
+        plugin = utils.load_settings("plugin")
         self._set_chosen_plugin(plugin)
+
+        token = utils.load_settings("token")
+        self.github.set_access_token(token)
+        self._enable_issues_group()
 
     def _connect_signals(self):
         self.PluginChooser.activated.connect(self._plugin_selected)
-        self.TokenLineEdit.editingFinished.connect(self._token_selected)
+        self.ConfigureLabel.linkActivated.connect(self._tracker_configure_link_activated)
         self.SubmitButton.clicked.connect(self._submit_issue)
         self.TitleEditLine.editingFinished.connect(self._enable_submit)
 
+    def _tracker_configure_link_activated(self, link):
+        if self.conf_widget:
+            self.conf_widget.close()
+            self.conf_widget = None
+
+        self.hide()
+
+        self.conf_widget = conf_widget.ConfigurationWidget()
+        self.conf_widget.show()
+        if self.conf_widget.exec_():
+            self._load_settings()
+
+        self.show()
+
     def _set_no_err(self, widget):
         widget.setText("")
-        widget.hide()
 
     def _set_err(self, widget, msg):
         if msg:
             widget.setText("<font color=red>" + msg + "</font>")
-            widget.show()
         else:
             self._set_no_err(widget)
 
     def _enable_issues_group(self, dummy=None):
         submit_err = None
         git_err = None
-        if not self.TokenLineEdit.text():
-            git_err = "Missing GitHub Access Token"
-        elif not self.TrackerLabel.text():
+        if not self.TrackerLabel.text():
             git_err = "Missing \"tracker\" entry in plugin metadata. Please fix the plugin"
         elif not ("github.com" in self.TrackerLabel.text()):
             git_err = "Only GitHub issue trackers are currently supported."
         elif (not self.github) or (not self.github.is_valid()):
-            git_err =  "Invalid GitHub tracker and token combination"
+            git_err =  "Invalid GitHub tracker and token combination. Please configure"
         elif not self.TitleEditLine.text():
             submit_err = "Missing Title"
 
@@ -169,13 +177,6 @@ class MainWidget(qtBaseClass, uiWidget):
             self.LabelsListWidget.addItem(item)
         self.LabelsListWidget.sortItems()
 
-    def _token_selected(self):
-        token = self.TokenLineEdit.text()
-        self.github.set_access_token(token)
-        self._save_settings("token", token)
-
-        self._enable_issues_group()
-
     def _plugin_selected(self):
         plugin = self.PluginChooser.itemText(self.PluginChooser.currentIndex())
         tracker = self.PluginChooser.itemData(self.PluginChooser.currentIndex())
@@ -185,7 +186,7 @@ class MainWidget(qtBaseClass, uiWidget):
         else:
             self.TrackerLabel.setText("")
 
-        self._save_settings("plugin", plugin)
+        utils.save_settings("plugin", plugin)
 
         self._enable_issues_group()
         self._load_additional_info()
@@ -207,29 +208,43 @@ class MainWidget(qtBaseClass, uiWidget):
             item = self.LabelsListWidget.item(row)
             if item.checkState() == Qt.Checked:
                 labels += [item.text()]
-        print labels
         return labels
+
+    def _set_selected_label(self, label):
+        for row in range(self.LabelsListWidget.count()):
+            item = self.LabelsListWidget.item(row)
+            if label.lower() == item.text().lower():
+                item.setCheckState(Qt.Checked)
+            else:
+                item.setCheckState(Qt.Unchecked)
 
     def _submit_issue(self):
         if self.github.is_valid():
+
             title = self.TitleEditLine.text()
             labels = self._selected_labels()
             desc = self.DescriptionTextEdit.toPlainText()
             additional_info = self.AdditionalInfoLineEdit.text()
 
-            try:
-                link, number = self.github.create_issue(title, labels, "{}\n{}".format(desc, additional_info))
-                msgBox = QMessageBox()
-                msgBox.setTextFormat(Qt.RichText)
-                msgBox.setText("GitHub <a href='{}'>issue #{}</a> created".format(link, number));
-                msgBox.setStandardButtons(QMessageBox.Ok)
-                msgBox.exec_()
+            reply = QMessageBox.question(None,
+                                 "Confirmation",
+                                 "Do you want to submit an issue?",
+                                 QMessageBox.Yes | QMessageBox.No)
 
-            except GitHubApiError as err:
-                self._set_err(str(err))
-                return
+            if reply == QMessageBox.Yes:
+                try:
+                    link, number = self.github.create_issue(title, labels, "{}\n{}".format(desc, additional_info))
+                    msgBox = QMessageBox()
+                    msgBox.setTextFormat(Qt.RichText)
+                    msgBox.setText("GitHub <a href='{}'>issue #{}</a> created".format(link, number));
+                    msgBox.setStandardButtons(QMessageBox.Ok)
+                    msgBox.exec_()
 
-            self.accept()
+                except GitHubApiError as err:
+                    self._set_err(str(err))
+                    return
+
+                self.accept()
         else:
            self._set_err("Invalid GitHub connection")
 

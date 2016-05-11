@@ -11,6 +11,7 @@
 
 import os
 from PyQt4.QtGui import QPixmap, QIcon, QColor
+from PyQt4.QtCore import QSettings
 
 def get_file_path(*paths):
     temp_dir = os.path.dirname(os.path.realpath(__file__))
@@ -22,3 +23,13 @@ def colored_icon(color):
     pixmap.fill(QColor("#" + str(color)));
     icon = QIcon(pixmap)
     return icon
+
+def save_settings(key, val):
+    settings = QSettings()
+    settings.beginGroup("/qgis-report-plugin")
+    settings.setValue(key, val)
+
+def load_settings(key):
+    settings = QSettings()
+    settings.beginGroup("/qgis-report-plugin")
+    return settings.value(key, "", type=str)

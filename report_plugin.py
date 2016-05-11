@@ -33,7 +33,7 @@ def show_report_dialog(last_error=None):
     close_report_dialog()
     report_dialog = main_widget.MainWidget(last_error)
     report_dialog.show()
-    report_dialog.exec_()
+    #report_dialog.exec_()
 
 def show_report_exception(etype, value, tb, msg, *args, **kwargs):
     global old_show_exception
