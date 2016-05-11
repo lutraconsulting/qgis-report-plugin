@@ -18,7 +18,7 @@ def get_file_path(*paths):
     return path
 
 def colored_icon(color):
-    pixmap = QPixmap(10,10)
+    pixmap = QPixmap(15,15)
     pixmap.fill(QColor("#" + str(color)));
     icon = QIcon(pixmap)
     return icon
