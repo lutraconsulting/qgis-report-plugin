@@ -131,7 +131,7 @@ class MainWidget(qtBaseClass, uiWidget):
             self._set_err("Missing Tracker")
             submit_ok = False
             git_ok = False
-        elif not self.github:
+        elif (not self.github) or (not self.github.is_valid()):
             self._set_err("Invalid GitHub access token")
             submit_ok = False
             git_ok = False
@@ -196,9 +196,9 @@ class MainWidget(qtBaseClass, uiWidget):
                 else:
                     tracker_link = None
                 self.PluginChooser.addItem(plugin_name, tracker_link)
-                
+
     def _submit_issue(self):
-        if self.github.is_valid() == True:
+        if self.github.is_valid():
             title = self.TitleEditLine.text()
             labels = self.LabelsLineEdit.text()
             desc = self.DescriptionTextEdit.toPlainText()

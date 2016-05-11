@@ -13,7 +13,6 @@ import utils
 import json
 
 try:
-    raise ImportError
     import requests
 except ImportError:
     import os
@@ -29,9 +28,19 @@ class GitHubApi():
     def __init__(self):
         self.tracker = None
         self.access_token = None
+        self.labels = []
 
     def is_valid(self):
-        return (self.tracker != None) and (self.access_token != None)
+        is_initialized = (self.tracker != None) and (self.access_token != None)
+        if is_initialized:
+            try:
+                # try to fetch labels to test token
+                self._get_labels()
+                return True
+            except GitHubApiError:
+                return False
+        else:
+            return False
 
     def set_tracker(self, tracker):
         API = "https://api.github.com/repos/"
@@ -50,29 +59,30 @@ class GitHubApi():
             access_token = access_token.strip()
         self.access_token = access_token
 
+    def _parse_response(self, resp):
+        ok_codes = ['200', '201', '202']
+        if resp.status_code in ok_codes:
+            raise GitHubApiError("Invalid API GitHub Call ({})".format(resp.status_code))
+
+        resp_json = resp.json()
+        if isinstance(resp_json, dict):
+            msg = resp_json.get("message", None)
+            if "Bad credentials" in msg:
+                raise GitHubApiError("Invalid GitHub access token")
+
+        return resp_json
+    
     def _post(self, key, payload):
         headers = {'Authorization': 'token ' + self.access_token}
         url = self.tracker + key
         r = requests.post(url, data=json.dumps(payload), headers=headers)
-
-        ok_codes = ['200', '201', '202']
-
-        if r.status_code in ok_codes:
-            raise GitHubApiError("Invalid API GitHub Call ({})".format(r.status_code))
-
-        return r.json()
+        return self._parse_response(r)
 
     def _get(self, key):
         headers = {'Authorization': 'token ' + self.access_token}
         url = self.tracker + key
         r = requests.get(url, headers=headers)
-
-        ok_codes = ['200', '201', '202']
-
-        if r.status_code in ok_codes:
-            raise GitHubApiError("Invalid API GitHub Call ({})".format(r.status_code))
-
-        return r.json()
+        return self._parse_response(r)
 
     def create_issue(self, title, labels=None, description=None):
         payload = {}
@@ -86,9 +96,12 @@ class GitHubApi():
         resp = self._post("issues", payload)
         return resp['html_url'], resp['number']
 
-    def get_labels(self):
+    def _get_labels(self):
         labels = self._get("labels")
         ret = []
         for l in labels:
             ret += [l['name']]
-        return ret
+        self.labels = ret
+
+    def get_labels(self):
+        return self.labels
