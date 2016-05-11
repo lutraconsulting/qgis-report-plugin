@@ -114,40 +114,39 @@ class MainWidget(qtBaseClass, uiWidget):
         self.SubmitButton.clicked.connect(self._submit_issue)
         self.TitleEditLine.editingFinished.connect(self._enable_widgets)
 
-    def _set_no_err(self):
-        self.ErrorLabel.setText("")
-        self.ErrorLabel.hide()
+    def _set_no_err(self, widget):
+        widget.setText("")
+        widget.hide()
 
-    def _set_err(self, msg):
-        self.ErrorLabel.setText("<font color=red>" + msg + "</font>")
-        self.ErrorLabel.show()
+    def _set_err(self, widget, msg):
+        if msg:
+            widget.setText("<font color=red>" + msg + "</font>")
+            widget.show()
+        else:
+            self._set_no_err(widget)
 
     def _enable_widgets(self, dummy=None):
+        submit_err = None
+        git_err = None
         if not self.TokenLineEdit.text():
-            self._set_err("Missing GitHub Access Token")
-            submit_ok = False
-            git_ok = False
+            git_err = "Missing GitHub Access Token"
         elif not self.TrackerLabel.text():
-            self._set_err("Missing Tracker")
-            submit_ok = False
-            git_ok = False
+            git_err = "Missing Tracker in Plugin Metadata. Please fix the plugin"
+        elif not ("github.com" in self.TrackerLabel.text()):
+            git_err = "Only GitHub issue trackers are currently supported."
         elif (not self.github) or (not self.github.is_valid()):
-            self._set_err("Invalid GitHub access token")
-            submit_ok = False
-            git_ok = False
+            git_err =  "Invalid GitHub tracker and token combination"
         elif not self.TitleEditLine.text():
-            self._set_err("Missing Title")
-            submit_ok = False
-            git_ok = True
-        else:
-            self._set_no_err()
-            submit_ok = True
-            git_ok = True
+            submit_err = "Missing Title"
 
-        self.IssueGroupBox.setEnabled(git_ok)
-        if git_ok:
+        self._set_err(self.TitleErrorLabel, submit_err)
+        self._set_err(self.TrackerErrorLabel, git_err)
+
+        self.IssueGroupBox.setEnabled(git_err == None)
+        self.SubmitButton.setEnabled(git_err == None and submit_err == None)
+
+        if git_err:
             self._load_labels()
-        self.SubmitButton.setEnabled(submit_ok)
 
     def _load_labels(self):
         labels = self.github.get_labels()
@@ -176,10 +175,8 @@ class MainWidget(qtBaseClass, uiWidget):
         plugin = self.PluginChooser.itemText(self.PluginChooser.currentIndex())
         tracker = self.PluginChooser.itemData(self.PluginChooser.currentIndex())
         self.github.set_tracker(tracker)
-        if tracker:
-            self.TrackerLabel.setText(str(tracker))
-        else:
-            self.TrackerLabel.setText("")
+        self.TrackerLabel.setText(tracker)
+
         self._save_settings("plugin", plugin)
 
         self._enable_widgets()
@@ -191,11 +188,10 @@ class MainWidget(qtBaseClass, uiWidget):
         for plugin_name in plugins_to_show:
             if plugin_name:
                 tracker = pluginMetadata(plugin_name, 'tracker')
-                if "github.com" in tracker:
-                    tracker_link = tracker
-                else:
-                    tracker_link = None
-                self.PluginChooser.addItem(plugin_name, tracker_link)
+                if "error" in tracker:
+                    tracker = ""
+
+                self.PluginChooser.addItem(plugin_name, tracker)
 
     def _submit_issue(self):
         if self.github.is_valid():
