@@ -184,7 +184,7 @@ class MainWidget(qtBaseClass, uiWidget):
 
     def _load_available_trackers(self):
         self.PluginChooser.addItem("", None)
-        plugins_to_show = sorted(available_plugins)
+        plugins_to_show = sorted(available_plugins, key=lambda s: s.lower())
         for plugin_name in plugins_to_show:
             if plugin_name:
                 tracker = pluginMetadata(plugin_name, 'tracker')
