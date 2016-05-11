@@ -49,7 +49,6 @@ def show_report_exception(etype, value, tb, msg, *args, **kwargs):
     if reply == QMessageBox.Yes:
 
         last_error = {'etype': etype, 'value': value, 'tb': tb, 'msg': msg}
-        print "here"
         show_report_dialog(last_error)
 
 class ReportPlugin:
@@ -72,7 +71,7 @@ class ReportPlugin:
         del self.action
 
         close_report_dialog()
-        
+
         # unhook from exception handling
         global old_show_exception
         qgis.utils.showException = old_show_exception

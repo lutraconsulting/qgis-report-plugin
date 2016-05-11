@@ -19,7 +19,7 @@ from PyQt4.QtCore import QSettings, Qt
 from PyQt4.QtGui import QStringListModel, QCompleter, QMessageBox
 from qgis.core import QGis
 
-from qgis.utils import plugins, pluginMetadata
+from qgis.utils import available_plugins, pluginMetadata
 from qgis.utils import iface
 
 ui_file = utils.get_file_path('main_widget.ui')
@@ -72,8 +72,7 @@ class MainWidget(qtBaseClass, uiWidget):
 
             main_error = lst[-1].decode('utf-8', 'replace') if hasattr(lst[-1], 'decode') else lst[-1]
 
-            fileline = lst[-2].decode('utf-8', 'replace') if hasattr(lst[-2], 'decode') else lst[-2]
-            self._find_plugin_from_exception(fileline)
+            self._find_plugin_from_exception(error)
 
             desc += "{} {}\n".format(msg, error)
 
@@ -188,9 +187,10 @@ class MainWidget(qtBaseClass, uiWidget):
 
     def _load_available_trackers(self):
         self.PluginChooser.addItem("", None)
-        for pl in plugins.keys():
+        for pl in available_plugins:
             if pl:
                 tracker = pluginMetadata(pl, 'tracker')
+                print tracker
                 if "github.com" in tracker:
                     self.PluginChooser.addItem(pl, tracker)
 

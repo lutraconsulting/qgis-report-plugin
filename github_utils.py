@@ -31,8 +31,6 @@ class GitHubApi():
         self.access_token = None
 
     def is_valid(self):
-        print self.tracker, self.access_token
-
         return (self.tracker != None) and (self.access_token != None)
 
     def set_tracker(self, tracker):
