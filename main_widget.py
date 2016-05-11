@@ -16,7 +16,7 @@ import traceback
 import utils
 from github_utils import GitHubApiError, GitHubApi
 from PyQt4.QtCore import QSettings, Qt
-from PyQt4.QtGui import QStringListModel, QCompleter, QMessageBox
+from PyQt4.QtGui import QListWidgetItem, QMessageBox
 from qgis.core import QGis
 
 from qgis.utils import available_plugins, pluginMetadata
@@ -40,7 +40,7 @@ class MainWidget(qtBaseClass, uiWidget):
         self._load_last_error()
         self._load_additional_info()
 
-        self._enable_widgets()
+        self._enable_issues_group()
 
     def _save_settings(self, key, val):
         settings = QSettings()
@@ -112,7 +112,7 @@ class MainWidget(qtBaseClass, uiWidget):
         self.PluginChooser.activated.connect(self._plugin_selected)
         self.TokenLineEdit.editingFinished.connect(self._token_selected)
         self.SubmitButton.clicked.connect(self._submit_issue)
-        self.TitleEditLine.editingFinished.connect(self._enable_widgets)
+        self.TitleEditLine.editingFinished.connect(self._enable_submit)
 
     def _set_no_err(self, widget):
         widget.setText("")
@@ -125,7 +125,7 @@ class MainWidget(qtBaseClass, uiWidget):
         else:
             self._set_no_err(widget)
 
-    def _enable_widgets(self, dummy=None):
+    def _enable_issues_group(self, dummy=None):
         submit_err = None
         git_err = None
         if not self.TokenLineEdit.text():
@@ -139,37 +139,42 @@ class MainWidget(qtBaseClass, uiWidget):
         elif not self.TitleEditLine.text():
             submit_err = "Missing Title"
 
-        self._set_err(self.TitleErrorLabel, submit_err)
+
         self._set_err(self.TrackerErrorLabel, git_err)
 
         self.IssueGroupBox.setEnabled(git_err == None)
         self.SubmitButton.setEnabled(git_err == None and submit_err == None)
 
-        if git_err:
+        self._enable_submit()
+
+        if not git_err:
             self._load_labels()
+
+    def _enable_submit(self, dummy=None):
+        submit_err = None
+        if not self.TitleEditLine.text():
+            submit_err = "Missing Title"
+
+        self._set_err(self.TitleErrorLabel, submit_err)
+        self.SubmitButton.setEnabled(submit_err == None)
 
     def _load_labels(self):
         labels = self.github.get_labels()
-
-        model = QStringListModel()
-        completer_model = model
-        compl = QCompleter()
-        compl.setModel(model)
-        compl.setCaseSensitivity(Qt.CaseInsensitive)
-        compl.setMaxVisibleItems(50)
-        compl.setModelSorting(QCompleter.CaseInsensitivelySortedModel)
-        compl.setCompletionMode(QCompleter.UnfilteredPopupCompletion)
-        completer_model.setStringList(labels)
-
-        self.LabelsLineEdit.setCompleter(compl)
-        self.LabelsLineEdit.setText("")
+        self.LabelsListWidget.clear()
+        for label in labels:
+            icon = utils.colored_icon(label['color'])
+            item = QListWidgetItem(icon, label['name'], self.LabelsListWidget)
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Unchecked)
+            self.LabelsListWidget.addItem(item)
+        self.LabelsListWidget.sortItems()
 
     def _token_selected(self):
         token = self.TokenLineEdit.text()
         self.github.set_access_token(token)
         self._save_settings("token", token)
 
-        self._enable_widgets()
+        self._enable_issues_group()
 
     def _plugin_selected(self):
         plugin = self.PluginChooser.itemText(self.PluginChooser.currentIndex())
@@ -182,7 +187,7 @@ class MainWidget(qtBaseClass, uiWidget):
 
         self._save_settings("plugin", plugin)
 
-        self._enable_widgets()
+        self._enable_issues_group()
         self._load_additional_info()
 
     def _load_available_trackers(self):
@@ -196,10 +201,19 @@ class MainWidget(qtBaseClass, uiWidget):
 
                 self.PluginChooser.addItem(plugin_name, tracker)
 
+    def _selected_labels(self):
+        labels = []
+        for row in range(self.LabelsListWidget.count()):
+            item = self.LabelsListWidget.item(row)
+            if item.checkState() == Qt.Checked:
+                labels += [item.text()]
+        print labels
+        return labels
+
     def _submit_issue(self):
         if self.github.is_valid():
             title = self.TitleEditLine.text()
-            labels = self.LabelsLineEdit.text()
+            labels = self._selected_labels()
             desc = self.DescriptionTextEdit.toPlainText()
             additional_info = self.AdditionalInfoLineEdit.text()
 

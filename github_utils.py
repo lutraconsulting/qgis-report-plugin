@@ -67,11 +67,11 @@ class GitHubApi():
         resp_json = resp.json()
         if isinstance(resp_json, dict):
             msg = resp_json.get("message", None)
-            if "Bad credentials" in msg:
+            if msg and "Bad credentials" in msg:
                 raise GitHubApiError("Invalid GitHub access token")
 
         return resp_json
-    
+
     def _post(self, key, payload):
         headers = {'Authorization': 'token ' + self.access_token}
         url = self.tracker + key
@@ -90,8 +90,7 @@ class GitHubApi():
         if description:
             payload['body'] = description
         if labels:
-            lab_arr = labels.split(" ;")
-            payload['labels'] = lab_arr
+            payload['labels'] = labels
 
         resp = self._post("issues", payload)
         return resp['html_url'], resp['number']
@@ -100,7 +99,7 @@ class GitHubApi():
         labels = self._get("labels")
         ret = []
         for l in labels:
-            ret += [l['name']]
+            ret += [{'name': l['name'], 'color': l['color']}]
         self.labels = ret
 
     def get_labels(self):
