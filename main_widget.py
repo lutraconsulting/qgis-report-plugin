@@ -131,7 +131,7 @@ class MainWidget(qtBaseClass, uiWidget):
         if not self.TokenLineEdit.text():
             git_err = "Missing GitHub Access Token"
         elif not self.TrackerLabel.text():
-            git_err = "Missing Tracker in Plugin Metadata. Please fix the plugin"
+            git_err = "Missing \"tracker\" entry in plugin metadata. Please fix the plugin"
         elif not ("github.com" in self.TrackerLabel.text()):
             git_err = "Only GitHub issue trackers are currently supported."
         elif (not self.github) or (not self.github.is_valid()):
