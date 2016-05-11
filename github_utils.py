@@ -90,5 +90,5 @@ class GitHubApi():
         labels = self._get("labels")
         ret = []
         for l in labels:
-            ret += [['name']]
+            ret += [l['name']]
         return ret

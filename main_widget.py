@@ -187,13 +187,16 @@ class MainWidget(qtBaseClass, uiWidget):
 
     def _load_available_trackers(self):
         self.PluginChooser.addItem("", None)
-        for pl in available_plugins:
-            if pl:
-                tracker = pluginMetadata(pl, 'tracker')
-                print tracker
+        plugins_to_show = sorted(available_plugins)
+        for plugin_name in plugins_to_show:
+            if plugin_name:
+                tracker = pluginMetadata(plugin_name, 'tracker')
                 if "github.com" in tracker:
-                    self.PluginChooser.addItem(pl, tracker)
-
+                    tracker_link = tracker
+                else:
+                    tracker_link = None
+                self.PluginChooser.addItem(plugin_name, tracker_link)
+                
     def _submit_issue(self):
         if self.github.is_valid() == True:
             title = self.TitleEditLine.text()
