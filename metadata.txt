@@ -12,9 +12,9 @@ about=Plugin for fast reporting of issues to the tracker.
 
 ; start of optional metadata
 changelog=0.2 - Feature and Bug Fix Release
- - Show all plugins, even without github tracker
+ - Show all plugins, even without github tracker, sorted
  - Better detection of invalid GitHub Tokens, easier generation of tokens
- - Improvements to GUI and User Experience (Colered Labels, Configuration Dialog, ...)
+ - Improvements to GUI and User Experience (labels, configuration dialog, error messages)
  <p> 0.1 - Initial Release
 
 ; tags are in comma separated value format, spaces are allowed

@@ -175,7 +175,10 @@ class MainWidget(qtBaseClass, uiWidget):
         plugin = self.PluginChooser.itemText(self.PluginChooser.currentIndex())
         tracker = self.PluginChooser.itemData(self.PluginChooser.currentIndex())
         self.github.set_tracker(tracker)
-        self.TrackerLabel.setText(tracker)
+        if tracker:
+            self.TrackerLabel.setText("<a href=\"{}\">{}</a>".format(tracker, tracker))
+        else:
+            self.TrackerLabel.setText("")
 
         self._save_settings("plugin", plugin)
 
