@@ -14,9 +14,8 @@ import platform
 import traceback
 
 import utils
-from provider import *
-from PyQt4.QtCore import QSettings, Qt
-from PyQt4.QtGui import QListWidgetItem, QMessageBox
+from PyQt4.QtCore import QSettings, Qt, QUrl
+from PyQt4.QtGui import QListWidgetItem, QMessageBox, QDesktopServices
 from qgis.core import QGis
 
 from qgis.utils import available_plugins, pluginMetadata
@@ -32,6 +31,7 @@ class ConfigurationWidget(qtBaseClass, uiWidget):
         qtBaseClass.__init__(self, parent)
         self.setupUi(self)
         self.provider = provider
+        self._connect_signals()
         self._load_settings()
 
     def _load_settings(self):
@@ -40,8 +40,17 @@ class ConfigurationWidget(qtBaseClass, uiWidget):
 
     def _connect_signals(self):
         self.GitTokenLineEdit.editingFinished.connect(self._token_selected)
-        self.GitOkButton.clicked.connect(self._token_selected)
-        
+        self.GitOkButton.clicked.connect(self._ok_clicked)
+        self.GitHelpButton.clicked.connect(self._git_help_wanted)
+
+    def _git_help_wanted(self):
+        html = utils.get_file_path('doc', 'github_token.html')
+        QDesktopServices.openUrl(QUrl(html))
+
+    def _ok_clicked(self):
+        self._token_selected()
+        self.close()
+
     def _token_selected(self):
         git_token = self.GitTokenLineEdit.text()
         self.provider['github'].set_credentials(git_token)
