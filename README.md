@@ -2,7 +2,7 @@
 
 ![icon](https://raw.githubusercontent.com/lutraconsulting/qgis-report-plugin/master/images/icon_128.png)
 
-What you want to quicky report issues to GitHub plugin issue tracker..
+What you want to [quicky report issues](https://www.youtube.com/embed/40aiJ793mjs) to GitHub plugin issue tracker ...
 
 [![YouTube demostration](https://raw.githubusercontent.com/lutraconsulting/qgis-report-plugin/master/images/demo.png)](https://www.youtube.com/embed/40aiJ793mjs)
 
