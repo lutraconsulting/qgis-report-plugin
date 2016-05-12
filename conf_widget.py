@@ -40,7 +40,8 @@ class ConfigurationWidget(qtBaseClass, uiWidget):
 
     def _connect_signals(self):
         self.GitTokenLineEdit.editingFinished.connect(self._token_selected)
-
+        self.GitOkButton.clicked.connect(self._token_selected)
+        
     def _token_selected(self):
         git_token = self.GitTokenLineEdit.text()
         self.provider['github'].set_credentials(git_token)

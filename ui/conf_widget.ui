@@ -82,6 +82,13 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="GitOkButton">
+           <property name="text">
+            <string>OK</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
