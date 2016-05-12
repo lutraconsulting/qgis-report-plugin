@@ -155,9 +155,6 @@ class MainWidget(qtBaseClass, uiWidget):
 
         self._enable_submit()
 
-        if not prov_err:
-            self._load_labels()
-
     def _enable_submit(self, dummy=None):
         submit_err = None
         if not self.TitleEditLine.text():
@@ -195,6 +192,8 @@ class MainWidget(qtBaseClass, uiWidget):
 
         if self.selected_provider:
             self.selected_provider.set_tracker(tracker)
+            if self.selected_provider.is_valid():
+                self._load_labels()
 
         utils.save_settings("plugin", plugin)
 
