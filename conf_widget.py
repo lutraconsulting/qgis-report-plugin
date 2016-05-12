@@ -45,7 +45,8 @@ class ConfigurationWidget(qtBaseClass, uiWidget):
 
     def _git_help_wanted(self):
         html = utils.get_file_path('doc', 'github_token.html')
-        QDesktopServices.openUrl(QUrl(html))
+        url = QUrl.fromLocalFile(html)
+        QDesktopServices.openUrl(url)
 
     def _ok_clicked(self):
         self._token_selected()
