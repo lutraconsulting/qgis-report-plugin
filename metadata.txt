@@ -12,9 +12,13 @@ about=Plugin for fast reporting of issues to the tracker.
 
 ; start of optional metadata
 changelog=0.2 - Feature and Bug Fix Release
- - Show all plugins, even without github tracker, sorted
- - Better detection of invalid GitHub Tokens, easier generation of tokens
- - Improvements to GUI and User Experience (labels, configuration dialog, error messages)
+ - Colored labels selectable from List
+ - Better detection of invalid GitHub Tokens
+ - Configuration dialog for GitHub
+ - Improvements to bug reports when Python exception is caught (formatting of the message)
+ - Improvements to the plugin selection (sorted plugin list, better support for not different trackers)
+ - Issue tracker is not hyperlink
+ - Fixed various small bugs 
  <p> 0.1 - Initial Release
 
 ; tags are in comma separated value format, spaces are allowed
