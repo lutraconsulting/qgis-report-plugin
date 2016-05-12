@@ -243,7 +243,7 @@ class MainWidget(qtBaseClass, uiWidget):
 
             if reply == QMessageBox.Yes:
                 try:
-                    link, number = self.selected_provider.create_issue(title, labels, "{}\n{}".format(desc, additional_info))
+                    link, number = self.selected_provider.create_issue(title, labels, u'{}\n{}'.format(desc, additional_info))
                     msgBox = QMessageBox()
                     msgBox.setTextFormat(Qt.RichText)
                     msgBox.setText("GitHub <a href='{}'>issue #{}</a> created".format(link, number))
