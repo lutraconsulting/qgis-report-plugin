@@ -14,7 +14,7 @@ import platform
 import traceback
 
 import utils
-from github_utils import GitHubApiError, GitHubApi
+from provider import *
 from PyQt4.QtCore import QSettings, Qt
 from PyQt4.QtGui import QListWidgetItem, QMessageBox
 from qgis.core import QGis
@@ -22,25 +22,27 @@ from qgis.core import QGis
 from qgis.utils import available_plugins, pluginMetadata
 from qgis.utils import iface
 
-ui_file = utils.get_file_path('conf_widget.ui')
+ui_file = utils.get_ui_file('conf_widget.ui')
 uiWidget, qtBaseClass = uic.loadUiType(ui_file)
 
 class ConfigurationWidget(qtBaseClass, uiWidget):
-    def __init__(self, parent=None):
+    def __init__(self, provider, parent=None):
         qtBaseClass.__init__(self, parent)
         self.setupUi(self)
+        self.provider = provider
         self._load_settings()
 
-
     def _load_settings(self):
-        token = utils.load_settings("token")
-        if token:
-            self.TokenLineEdit.setText(token)
-        else:
-            self.TokenLineEdit.setText("")
+        github = self.provider['github']
+        self.TokenLineEdit.setText(github.get_credentials())
 
     def _connect_signals(self):
         self.TokenLineEdit.editingFinished.connect(self._token_selected)
 
     def _token_selected(self):
-        self._save_settings("token", token)
+        access_token = self.TokenLineEdit.text()
+        self.provider['github'].set_credentials(access_token)
+
+    def closeEvent(self, e):
+        self._token_selected()
+        qtBaseClass.closeEvent(self, e)

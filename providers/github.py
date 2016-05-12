@@ -9,40 +9,23 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
-import utils
 import json
+
+from report import utils
+
+from report.providers.provider_base import ProviderApiBase, ProviderApiError
 
 try:
     import requests
 except ImportError:
-    import os
-    import sys
-    request_egg = utils.get_file_path('deps', 'requests-2.10.0-py2.py3-none-any.whl')
-    sys.path.append(request_egg)
+    utils.add_deps('requests-2.10.0-py2.py3-none-any.whl')
     import requests
 
-class GitHubApiError(Exception):
+class GitHubApiError(ProviderApiError):
     pass
 
-class GitHubApi():
-    def __init__(self):
-        self.tracker = None
-        self.access_token = None
-        self.labels = []
-
-    def is_valid(self):
-        is_initialized = (self.tracker != None) and (self.access_token != None)
-        if is_initialized:
-            try:
-                # try to fetch labels to test token
-                self._get_labels()
-                return True
-            except GitHubApiError:
-                return False
-        else:
-            return False
-
-    def set_tracker(self, tracker):
+class GitHubProvider(ProviderApiBase):
+    def _set_tracker(self, tracker):
         API = "https://api.github.com/repos/"
         if tracker:
             tracker = tracker.replace("https://github.com/", API)
@@ -51,13 +34,17 @@ class GitHubApi():
             tracker = tracker.replace("/issues", "")
             if not tracker.endswith("/"):
                 tracker += "/"
+        return tracker
 
-        self.tracker = tracker
+    def is_my_tracker(self, tracker):
+        return "github.com" in str(tracker)
 
-    def set_access_token(self, access_token):
-        if access_token:
-            access_token = access_token.strip()
-        self.access_token = access_token
+    def _save_credentials(self):
+        utils.save_settings("github-token", self.credentials)
+
+    def load_credentials(self):
+        token = utils.load_settings("github-token")
+        self._set_credentials(token)
 
     def _parse_response(self, resp):
         ok_codes = ['200', '201', '202']
@@ -73,13 +60,13 @@ class GitHubApi():
         return resp_json
 
     def _post(self, key, payload):
-        headers = {'Authorization': 'token ' + self.access_token}
+        headers = {'Authorization': 'token ' + self.credentials}
         url = self.tracker + key
         r = requests.post(url, data=json.dumps(payload), headers=headers)
         return self._parse_response(r)
 
     def _get(self, key):
-        headers = {'Authorization': 'token ' + self.access_token}
+        headers = {'Authorization': 'token ' + self.credentials}
         url = self.tracker + key
         r = requests.get(url, headers=headers)
         return self._parse_response(r)
@@ -101,6 +88,3 @@ class GitHubApi():
         for l in labels:
             ret += [{'name': l['name'], 'color': l['color']}]
         self.labels = ret
-
-    def get_labels(self):
-        return self.labels
