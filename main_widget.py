@@ -26,7 +26,9 @@ from qgis.utils import iface
 ui_file = utils.get_ui_file('main_widget.ui')
 uiWidget, qtBaseClass = uic.loadUiType(ui_file)
 
+
 class MainWidget(qtBaseClass, uiWidget):
+
     def __init__(self, last_exception=None, parent=None):
         qtBaseClass.__init__(self, parent)
         self.setupUi(self)
@@ -49,13 +51,12 @@ class MainWidget(qtBaseClass, uiWidget):
         self._enable_issues_group()
 
     def _find_plugin_from_exception(self, exc_fileline):
-         items = [self.PluginChooser.itemText(i) for i in range(self.PluginChooser.count())]
-         for item in items:
-            if item and item in exc_fileline: #skip empty item
+        items = [self.PluginChooser.itemText(i) for i in range(self.PluginChooser.count())]
+        for item in items:
+            if item and item in exc_fileline:  # skip empty item
                 self._set_chosen_plugin(item)
                 return
-         self._set_err("unable to determine plugin from exception text")
-
+        self._set_err("unable to determine plugin from exception text")
 
     def _load_last_error(self):
         if self.last_exception:
@@ -144,7 +145,7 @@ class MainWidget(qtBaseClass, uiWidget):
         elif not self.selected_provider:
             prov_err = "Only GitHub issue trackers are currently supported."
         elif not self.selected_provider.is_valid():
-            prov_err =  "Invalid issue tracker access token/credential. Please reconfigure"
+            prov_err = "Invalid issue tracker access token/credential. Please reconfigure"
         elif not self.TitleEditLine.text():
             submit_err = "Missing Title"
 
@@ -236,16 +237,16 @@ class MainWidget(qtBaseClass, uiWidget):
             additional_info = self.AdditionalInfoLineEdit.text()
 
             reply = QMessageBox.question(None,
-                                 "Confirmation",
-                                 "Do you want to submit an issue?",
-                                 QMessageBox.Yes | QMessageBox.No)
+                                         "Confirmation",
+                                         "Do you want to submit an issue?",
+                                         QMessageBox.Yes | QMessageBox.No)
 
             if reply == QMessageBox.Yes:
                 try:
                     link, number = self.selected_provider.create_issue(title, labels, "{}\n{}".format(desc, additional_info))
                     msgBox = QMessageBox()
                     msgBox.setTextFormat(Qt.RichText)
-                    msgBox.setText("GitHub <a href='{}'>issue #{}</a> created".format(link, number));
+                    msgBox.setText("GitHub <a href='{}'>issue #{}</a> created".format(link, number))
                     msgBox.setStandardButtons(QMessageBox.Ok)
                     msgBox.exec_()
 
@@ -255,5 +256,4 @@ class MainWidget(qtBaseClass, uiWidget):
 
                 self.accept()
         else:
-           self._set_err("Invalid GitHub connection")
-
+            self._set_err("Invalid GitHub connection")

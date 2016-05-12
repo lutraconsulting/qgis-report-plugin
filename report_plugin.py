@@ -22,11 +22,13 @@ old_show_exception = None
 report_dialog = None
 last_error = None
 
+
 def close_report_dialog():
     global report_dialog
     if report_dialog:
         report_dialog.close()
         report_dialog = None
+
 
 def show_report_dialog(last_error=None):
     global report_dialog
@@ -34,6 +36,7 @@ def show_report_dialog(last_error=None):
     report_dialog = main_widget.MainWidget(last_error)
     report_dialog.show()
     #report_dialog.exec_()
+
 
 def show_report_exception(etype, value, tb, msg, *args, **kwargs):
     global old_show_exception
@@ -51,7 +54,9 @@ def show_report_exception(etype, value, tb, msg, *args, **kwargs):
         last_error = {'etype': etype, 'value': value, 'tb': tb, 'msg': msg}
         show_report_dialog(last_error)
 
+
 class ReportPlugin:
+
     def __init__(self):
         self.action = None
 

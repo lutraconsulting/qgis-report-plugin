@@ -25,7 +25,9 @@ from qgis.utils import iface
 ui_file = utils.get_ui_file('conf_widget.ui')
 uiWidget, qtBaseClass = uic.loadUiType(ui_file)
 
+
 class ConfigurationWidget(qtBaseClass, uiWidget):
+
     def __init__(self, provider, parent=None):
         qtBaseClass.__init__(self, parent)
         self.setupUi(self)

@@ -10,4 +10,10 @@
 
 set -e
 
-pyrcc4 -o resources.py  resources.qrc
+##### PYTHON
+
+PYFILES=$(find . -maxdepth 1 -type f -name "*.py" )
+for i in $PYFILES; do
+    echo "$i"
+    autopep8 --in-place --ignore=E261,E265,E402,E501 "$i"
+done

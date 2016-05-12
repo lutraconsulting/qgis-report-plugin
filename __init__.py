@@ -9,6 +9,7 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
+
 def classFactory(iface):
     import report_plugin
     return report_plugin.ReportPlugin()
