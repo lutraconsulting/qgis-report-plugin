@@ -15,7 +15,7 @@ import traceback
 import conf_widget
 
 import utils
-from github_utils import GitHubApiError, GitHubApi
+from provider import *
 from PyQt4.QtCore import QSettings, Qt
 from PyQt4.QtGui import QListWidgetItem, QMessageBox
 from qgis.core import QGis
@@ -23,7 +23,7 @@ from qgis.core import QGis
 from qgis.utils import available_plugins, pluginMetadata
 from qgis.utils import iface
 
-ui_file = utils.get_file_path('main_widget.ui')
+ui_file = utils.get_ui_file('main_widget.ui')
 uiWidget, qtBaseClass = uic.loadUiType(ui_file)
 
 class MainWidget(qtBaseClass, uiWidget):
@@ -33,7 +33,9 @@ class MainWidget(qtBaseClass, uiWidget):
 
         self.conf_widget = None
 
-        self.github = GitHubApi()
+        self.provider = {'github': GitHubProvider()}
+        self.selected_provider = None
+
         self.last_exception = last_exception
 
         self._connect_signals()
@@ -99,12 +101,11 @@ class MainWidget(qtBaseClass, uiWidget):
         self._plugin_selected()
 
     def _load_settings(self):
+        for prov in self.provider.values():
+            prov.load_credentials()
+
         plugin = utils.load_settings("plugin")
         self._set_chosen_plugin(plugin)
-
-        token = utils.load_settings("token")
-        self.github.set_access_token(token)
-        self._enable_issues_group()
 
     def _connect_signals(self):
         self.PluginChooser.activated.connect(self._plugin_selected)
@@ -119,11 +120,11 @@ class MainWidget(qtBaseClass, uiWidget):
 
         self.hide()
 
-        self.conf_widget = conf_widget.ConfigurationWidget()
+        self.conf_widget = conf_widget.ConfigurationWidget(self.provider)
         self.conf_widget.show()
-        if self.conf_widget.exec_():
-            self._load_settings()
+        self.conf_widget.exec_()
 
+        self._load_settings()
         self.show()
 
     def _set_no_err(self, widget):
@@ -137,25 +138,24 @@ class MainWidget(qtBaseClass, uiWidget):
 
     def _enable_issues_group(self, dummy=None):
         submit_err = None
-        git_err = None
+        prov_err = None
         if not self.TrackerLabel.text():
-            git_err = "Missing \"tracker\" entry in plugin metadata. Please fix the plugin"
-        elif not ("github.com" in self.TrackerLabel.text()):
-            git_err = "Only GitHub issue trackers are currently supported."
-        elif (not self.github) or (not self.github.is_valid()):
-            git_err =  "Invalid GitHub tracker and token combination. Please configure"
+            prov_err = "Missing \"tracker\" entry in plugin metadata. Please fix the plugin"
+        elif not self.selected_provider:
+            prov_err = "Only GitHub issue trackers are currently supported."
+        elif not self.selected_provider.is_valid():
+            prov_err =  "Invalid issue tracker access token/credential. Please reconfigure"
         elif not self.TitleEditLine.text():
             submit_err = "Missing Title"
 
+        self._set_err(self.TrackerErrorLabel, prov_err)
 
-        self._set_err(self.TrackerErrorLabel, git_err)
-
-        self.IssueGroupBox.setEnabled(git_err == None)
-        self.SubmitButton.setEnabled(git_err == None and submit_err == None)
+        self.IssueGroupBox.setEnabled(prov_err == None)
+        self.SubmitButton.setEnabled(prov_err == None and submit_err == None)
 
         self._enable_submit()
 
-        if not git_err:
+        if not prov_err:
             self._load_labels()
 
     def _enable_submit(self, dummy=None):
@@ -167,24 +167,34 @@ class MainWidget(qtBaseClass, uiWidget):
         self.SubmitButton.setEnabled(submit_err == None)
 
     def _load_labels(self):
-        labels = self.github.get_labels()
         self.LabelsListWidget.clear()
-        for label in labels:
-            icon = utils.colored_icon(label['color'])
-            item = QListWidgetItem(icon, label['name'], self.LabelsListWidget)
-            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-            item.setCheckState(Qt.Unchecked)
-            self.LabelsListWidget.addItem(item)
-        self.LabelsListWidget.sortItems()
+        if self.selected_provider:
+            labels = self.selected_provider.get_labels()
+            for label in labels:
+                icon = utils.colored_icon(label['color'])
+                item = QListWidgetItem(icon, label['name'], self.LabelsListWidget)
+                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+                item.setCheckState(Qt.Unchecked)
+                self.LabelsListWidget.addItem(item)
+            self.LabelsListWidget.sortItems()
 
     def _plugin_selected(self):
         plugin = self.PluginChooser.itemText(self.PluginChooser.currentIndex())
         tracker = self.PluginChooser.itemData(self.PluginChooser.currentIndex())
-        self.github.set_tracker(tracker)
+
+        self.selected_provider = None
+        for prov in self.provider.values():
+            if prov.is_my_tracker(tracker):
+                self.selected_provider = prov
+                break
+
         if tracker:
             self.TrackerLabel.setText("<a href=\"{}\">{}</a>".format(tracker, tracker))
         else:
             self.TrackerLabel.setText("")
+
+        if self.selected_provider:
+            self.selected_provider.set_tracker(tracker)
 
         utils.save_settings("plugin", plugin)
 
@@ -219,7 +229,7 @@ class MainWidget(qtBaseClass, uiWidget):
                 item.setCheckState(Qt.Unchecked)
 
     def _submit_issue(self):
-        if self.github.is_valid():
+        if self.selected_provider and self.selected_provider.is_valid():
 
             title = self.TitleEditLine.text()
             labels = self._selected_labels()
@@ -233,14 +243,14 @@ class MainWidget(qtBaseClass, uiWidget):
 
             if reply == QMessageBox.Yes:
                 try:
-                    link, number = self.github.create_issue(title, labels, "{}\n{}".format(desc, additional_info))
+                    link, number = self.selected_provider.create_issue(title, labels, "{}\n{}".format(desc, additional_info))
                     msgBox = QMessageBox()
                     msgBox.setTextFormat(Qt.RichText)
                     msgBox.setText("GitHub <a href='{}'>issue #{}</a> created".format(link, number));
                     msgBox.setStandardButtons(QMessageBox.Ok)
                     msgBox.exec_()
 
-                except GitHubApiError as err:
+                except ProviderApiError as err:
                     self._set_err(str(err))
                     return
 

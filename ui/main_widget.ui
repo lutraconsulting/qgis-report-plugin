@@ -20,7 +20,7 @@
    <string>Report issue</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources">
+   <iconset>
     <normaloff>:/plugins/qgis-report-plugin/images/icon.png</normaloff>:/plugins/qgis-report-plugin/images/icon.png</iconset>
   </property>
   <property name="modal">
@@ -132,7 +132,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>&lt;a href=&quot;configure&quot;&gt;Configure Github&lt;/a&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;configure&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;Configure&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="textFormat">
             <enum>Qt::RichText</enum>
