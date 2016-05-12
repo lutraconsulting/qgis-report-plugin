@@ -4,6 +4,8 @@
 
 What you want to quicky report issues to GitHub plugin issue tracker..
 
+[![YouTube demostration](https://raw.githubusercontent.com/lutraconsulting/qgis-report-plugin/master/images/demo.png)](https://www.youtube.com/embed/40aiJ793mjs)
+
 ## How to use it?
 
 1. Create a GitHub account
@@ -13,6 +15,10 @@ What you want to quicky report issues to GitHub plugin issue tracker..
 5. Click on Generate Token, copy the token to the plugin Configuration dialog
 6. Select plugin for which you want to report bug
 7. Fill title and description and Submit!
+
+## How to test it?
+You can simply download and use [DevNullPlugin](https://github.com/lutraconsulting/qgis-dev-null-plugin) to trigger exceptions
+and DevNull issue tracker to report dummy issues.
 
 ## Notice
 
