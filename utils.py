@@ -32,6 +32,13 @@ def colored_icon(color):
     icon = QIcon(pixmap)
     return icon
 
+def label_img(widget, name):
+    img = get_file_path('images', name)
+    pixmap = QPixmap(img);
+    widget.setPixmap(pixmap)
+    widget.setMask(pixmap.mask())
+    widget.show()
+
 def save_settings(key, val):
     settings = QSettings()
     settings.beginGroup("/qgis-report-plugin")

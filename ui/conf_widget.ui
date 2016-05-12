@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>409</width>
-    <height>197</height>
+    <width>450</width>
+    <height>350</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -28,15 +28,28 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QGroupBox" name="TrackerGroupBox">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Security Notice &lt;/span&gt;&lt;/p&gt;&lt;p&gt;The plugin needs access to the repositories to submit new issues. A token is a series of numbers and letters and serves as a password for selected operations.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;So please, do not share the token with others.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="GitTrackerGroupBox">
      <property name="title">
       <string>GitHub</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
-       <widget class="QLabel" name="InfoLabel">
+       <widget class="QLabel" name="GitInfoLabel">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GitHub Token&lt;/span&gt;&lt;/p&gt;&lt;p&gt;The plugin needs access to the GitHub repository to submit new issues. A token is a series of numbers and letters and serves as a password for selected operations (so do not share it with other people). It can be obtained &lt;a href=&quot;https://github.com/settings/tokens/new&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;manually&lt;/span&gt;&lt;/a&gt; from the GitHub website&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;GitHub Token&lt;/span&gt;&lt;/p&gt;&lt;p&gt;GitHub api token can be obtained &lt;a href=&quot;https://github.com/settings/tokens/new&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;manually&lt;/span&gt;&lt;/a&gt; from the GitHub website&lt;/p&gt;&lt;p&gt;  1) Enter Token Description (e.g. qgis-report-plugin)&lt;/p&gt;&lt;p&gt;  2) Select scopes for repo-&amp;gt;public_repo&lt;/p&gt;&lt;p&gt;  3) Click on &amp;quot;Generate token&amp;quot; button at the bottom of the page&lt;/p&gt;&lt;p&gt;  4) Copy and paste the generated token to this dialog&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="textFormat">
          <enum>Qt::RichText</enum>
@@ -56,14 +69,14 @@
        <widget class="QWidget" name="widget" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="GitLabel">
            <property name="text">
             <string>Token</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="TokenLineEdit">
+          <widget class="QLineEdit" name="GitTokenLineEdit">
            <property name="placeholderText">
             <string/>
            </property>

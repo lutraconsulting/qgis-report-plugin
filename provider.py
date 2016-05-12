@@ -12,6 +12,4 @@
 # pylint: disable=unused-import
 
 from report.providers.github import GitHubProvider
-from report.providers.redmine import RedmineProvider
-
 from report.providers.provider_base import ProviderApiError

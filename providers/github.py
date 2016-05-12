@@ -39,12 +39,8 @@ class GitHubProvider(ProviderApiBase):
     def is_my_tracker(self, tracker):
         return "github.com" in str(tracker)
 
-    def _save_credentials(self):
-        utils.save_settings("github-token", self.credentials)
-
-    def load_credentials(self):
-        token = utils.load_settings("github-token")
-        self._set_credentials(token)
+    def _credential_settings_key(self):
+        return "github-token"
 
     def _parse_response(self, resp):
         ok_codes = ['200', '201', '202']

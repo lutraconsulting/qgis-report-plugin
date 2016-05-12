@@ -9,6 +9,9 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
+from report import utils
+
+
 class ProviderApiError(Exception):
     pass
 
@@ -34,7 +37,6 @@ class ProviderApiBase():
         if tracker:
             tracker = self._set_tracker(tracker)
         self.tracker = tracker
-        return tracker
 
     def _set_credentials(self, credentials):
         if credentials:
@@ -52,9 +54,15 @@ class ProviderApiBase():
         return self.labels
 
     def _save_credentials(self):
-        raise NotImplementedError()
+        utils.save_settings(self._credential_settings_key(), self.credentials)
 
     def load_credentials(self):
+        token = utils.load_settings(self._credential_settings_key())
+        self._set_credentials(token)
+
+    ######################
+
+    def _credential_settings_key(self):
         raise NotImplementedError()
 
     def _set_tracker(self, tracker):

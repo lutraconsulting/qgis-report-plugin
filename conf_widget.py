@@ -34,14 +34,14 @@ class ConfigurationWidget(qtBaseClass, uiWidget):
 
     def _load_settings(self):
         github = self.provider['github']
-        self.TokenLineEdit.setText(github.get_credentials())
+        self.GitTokenLineEdit.setText(github.get_credentials())
 
     def _connect_signals(self):
-        self.TokenLineEdit.editingFinished.connect(self._token_selected)
+        self.GitTokenLineEdit.editingFinished.connect(self._token_selected)
 
     def _token_selected(self):
-        access_token = self.TokenLineEdit.text()
-        self.provider['github'].set_credentials(access_token)
+        git_token = self.GitTokenLineEdit.text()
+        self.provider['github'].set_credentials(git_token)
 
     def closeEvent(self, e):
         self._token_selected()

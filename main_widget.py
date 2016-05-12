@@ -33,7 +33,7 @@ class MainWidget(qtBaseClass, uiWidget):
 
         self.conf_widget = None
 
-        self.provider = {'github': GitHubProvider(), 'redmine': RedmineProvider()}
+        self.provider = {'github': GitHubProvider()}
         self.selected_provider = None
 
         self.last_exception = last_exception
@@ -142,7 +142,7 @@ class MainWidget(qtBaseClass, uiWidget):
         if not self.TrackerLabel.text():
             prov_err = "Missing \"tracker\" entry in plugin metadata. Please fix the plugin"
         elif not self.selected_provider:
-            prov_err = "Only GitHub or Redmine issue trackers are currently supported."
+            prov_err = "Only GitHub issue trackers are currently supported."
         elif not self.selected_provider.is_valid():
             prov_err =  "Invalid issue tracker access token/credential. Please reconfigure"
         elif not self.TitleEditLine.text():
@@ -188,14 +188,13 @@ class MainWidget(qtBaseClass, uiWidget):
                 self.selected_provider = prov
                 break
 
-        if self.selected_provider:
-            tracker = self.selected_provider.set_tracker(tracker)
-            if tracker:
-                self.TrackerLabel.setText("<a href=\"{}\">{}</a>".format(tracker, tracker))
-            else:
-                self.TrackerLabel.setText("")
+        if tracker:
+            self.TrackerLabel.setText("<a href=\"{}\">{}</a>".format(tracker, tracker))
         else:
             self.TrackerLabel.setText("")
+
+        if self.selected_provider:
+            self.selected_provider.set_tracker(tracker)
 
         utils.save_settings("plugin", plugin)
 
