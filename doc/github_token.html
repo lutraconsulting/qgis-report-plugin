@@ -1,0 +1,72 @@
+<html>
+<title>Using Report Plugin with GitHub</title>
+
+<link rel="stylesheet" href="bootstrap.min.css">
+
+<style>
+img {
+  margin-top: 20px ;
+  margin-bottom: 20px
+}
+</style>
+
+<body>
+
+<div class="container" style="max-width: 800px">
+
+<h1>Using Report Plugin with GitHub</h1>
+
+<p>
+The plugin needs access to the GitHub repositories to submit new issues.
+In order to authenticate with GitHub using your account, it needs an <b>access token</b>.
+A token is a series of numbers and letters and serves as a password for selected operations.
+</p>
+
+<p>
+<b>So please, do not share the token with others.</b>
+</p>
+
+<h1>Hot to Generate a Token</h1>
+
+<p>
+GitHub API token can be obtained from the GitHub website in few simple steps:
+</p>
+
+<ol>
+
+<li> Open <a target="_blank" href="https://github.com/settings/tokens/new">New personal access token</a> page on GitHub.
+GitHub will ask you to log in to your account first (or if you are logged in already, it will ask
+for password confirmation):
+<p class="text-center">
+<img src="github_login.png">
+</p>
+<p>
+<li> <p>After login to GitHub, you will see a form to set up a new token. You will need to:</p>
+<ul>
+<li>Enter token description (for example "QGIS Report plugin")
+<li>Select <b>public_repo</b> from the available scopes
+</ul>
+</p>
+<p>
+The filled in form should look like this:
+</p>
+<p class="text-center">
+<img src="token_new.png">
+</p>
+<li><p>Click <b>Generate token</b> button at the bottom of the page</p>
+<li><p>A new page will be shown with your access token:</p>
+<p class="text-center">
+<img src="token_result.png">
+</p>
+<li><p>
+Copy and paste the generated token from the green box to the configuration dialog of Report plugin.
+</p>
+</ol>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+
+</body>
+</html>
