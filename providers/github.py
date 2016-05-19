@@ -16,6 +16,12 @@ from report import utils
 from report.providers.provider_base import ProviderApiBase, ProviderApiError
 
 try:
+    import certifi
+    cacert_file = certifi.where()
+except ImportError:
+    cacert_file = utils.get_file_path("deps", "cacert.pem")
+
+try:
     import requests
 except ImportError:
     utils.add_deps('requests-2.10.0-py2.py3-none-any.whl')
@@ -58,13 +64,13 @@ class GitHubProvider(ProviderApiBase):
     def _post(self, key, payload):
         headers = {'Authorization': 'token ' + self.credentials}
         url = self.tracker + key
-        r = requests.post(url, data=json.dumps(payload), headers=headers)
+        r = requests.post(url, data=json.dumps(payload), headers=headers, verify=cacert_file)
         return self._parse_response(r)
 
     def _get(self, key):
         headers = {'Authorization': 'token ' + self.credentials}
         url = self.tracker + key
-        r = requests.get(url, headers=headers)
+        r = requests.get(url, headers=headers, verify=cacert_file)
         return self._parse_response(r)
 
     def create_issue(self, title, labels=None, description=None):
