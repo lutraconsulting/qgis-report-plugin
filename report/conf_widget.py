@@ -9,19 +9,13 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
-from PyQt4 import uic
-import platform
-import traceback
+from PyQt5 import uic
+from .utils import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 
-import utils
-from PyQt4.QtCore import QSettings, Qt, QUrl
-from PyQt4.QtGui import QListWidgetItem, QMessageBox, QDesktopServices
-from qgis.core import QGis
 
-from qgis.utils import available_plugins, pluginMetadata
-from qgis.utils import iface
-
-ui_file = utils.get_ui_file('conf_widget.ui')
+ui_file = get_ui_file('conf_widget.ui')
 uiWidget, qtBaseClass = uic.loadUiType(ui_file)
 
 
@@ -36,15 +30,19 @@ class ConfigurationWidget(qtBaseClass, uiWidget):
 
     def _load_settings(self):
         github = self.provider['github']
-        self.GitTokenLineEdit.setText(github.get_credentials())
+        creds = github.get_credentials()
+        if len(creds.split(":")) == 2:
+            self.GitUsernameLineEdit.setText(creds.split(":")[0])
+            self.GitTokenLineEdit.setText(creds.split(":")[1])
 
     def _connect_signals(self):
         self.GitTokenLineEdit.editingFinished.connect(self._token_selected)
+        self.GitUsernameLineEdit.editingFinished.connect(self._token_selected)
         self.GitOkButton.clicked.connect(self._ok_clicked)
         self.GitHelpButton.clicked.connect(self._git_help_wanted)
 
     def _git_help_wanted(self):
-        html = utils.get_file_path('doc', 'github_token.html')
+        html = get_file_path('doc', 'github_token.html')
         url = QUrl.fromLocalFile(html)
         QDesktopServices.openUrl(url)
 
@@ -54,7 +52,8 @@ class ConfigurationWidget(qtBaseClass, uiWidget):
 
     def _token_selected(self):
         git_token = self.GitTokenLineEdit.text()
-        self.provider['github'].set_credentials(git_token)
+        git_name = self.GitUsernameLineEdit.text()
+        self.provider['github'].set_credentials(git_name + ":" + git_token)
 
     def closeEvent(self, e):
         self._token_selected()

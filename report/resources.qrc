@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/qgis-report-plugin" >
+    <qresource prefix="/plugins/report" >
         <file>images/icon.png</file>
     </qresource>
 </RCC>

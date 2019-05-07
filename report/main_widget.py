@@ -9,21 +9,20 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
-from PyQt4 import uic
+from PyQt5 import uic
 import platform
 import traceback
-import conf_widget
+from .conf_widget import *
+from .utils import *
+from .provider import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+import qgis.utils
+from qgis.core import Qgis
+from .utils import *
 
-import utils
-from provider import *
-from PyQt4.QtCore import QSettings, Qt
-from PyQt4.QtGui import QListWidgetItem, QMessageBox
-from qgis.core import QGis
-
-from qgis.utils import available_plugins, pluginMetadata
-from qgis.utils import iface
-
-ui_file = utils.get_ui_file('main_widget.ui')
+ui_file = get_ui_file('main_widget.ui')
 uiWidget, qtBaseClass = uic.loadUiType(ui_file)
 
 
@@ -87,9 +86,9 @@ class MainWidget(qtBaseClass, uiWidget):
     def _load_additional_info(self):
         plugin = self.PluginChooser.itemText(self.PluginChooser.currentIndex())
 
-        qgis_info = str(QGis.QGIS_VERSION)
+        qgis_info = str(Qgis.QGIS_VERSION)
         platform_info = "{} {}".format(platform.system(), platform.release())
-        plugin_info = "{} {}".format(plugin, pluginMetadata(plugin, "version"))
+        plugin_info = "{} {}".format(plugin, qgis.utils.pluginMetadata(plugin, "version"))
 
         txt = "{}, QGIS {} on {}".format(plugin_info, qgis_info, platform_info)
 
@@ -105,7 +104,7 @@ class MainWidget(qtBaseClass, uiWidget):
         for prov in self.provider.values():
             prov.load_credentials()
 
-        plugin = utils.load_settings("plugin")
+        plugin = load_settings("plugin")
         self._set_chosen_plugin(plugin)
 
     def _connect_signals(self):
@@ -121,7 +120,7 @@ class MainWidget(qtBaseClass, uiWidget):
 
         self.hide()
 
-        self.conf_widget = conf_widget.ConfigurationWidget(self.provider)
+        self.conf_widget = ConfigurationWidget(self.provider)
         self.conf_widget.show()
         self.conf_widget.exec_()
 
@@ -169,7 +168,7 @@ class MainWidget(qtBaseClass, uiWidget):
         if self.selected_provider:
             labels = self.selected_provider.get_labels()
             for label in labels:
-                icon = utils.colored_icon(label['color'])
+                icon = colored_icon(label['color'])
                 item = QListWidgetItem(icon, label['name'], self.LabelsListWidget)
                 item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
                 item.setCheckState(Qt.Unchecked)
@@ -196,17 +195,17 @@ class MainWidget(qtBaseClass, uiWidget):
             if self.selected_provider.is_valid():
                 self._load_labels()
 
-        utils.save_settings("plugin", plugin)
+        save_settings("plugin", plugin)
 
         self._enable_issues_group()
         self._load_additional_info()
 
     def _load_available_trackers(self):
         self.PluginChooser.addItem("", None)
-        plugins_to_show = sorted(available_plugins, key=lambda s: s.lower())
+        plugins_to_show = sorted(qgis.utils.available_plugins, key=lambda s: s.lower())
         for plugin_name in plugins_to_show:
             if plugin_name:
-                tracker = pluginMetadata(plugin_name, 'tracker')
+                tracker = qgis.utils.pluginMetadata(plugin_name, 'tracker')
                 if "error" in tracker:
                     tracker = ""
 
@@ -246,7 +245,7 @@ class MainWidget(qtBaseClass, uiWidget):
                     link, number = self.selected_provider.create_issue(title, labels, u'{}\n{}'.format(desc, additional_info))
                     msgBox = QMessageBox()
                     msgBox.setTextFormat(Qt.RichText)
-                    msgBox.setText("GitHub <a href='{}'>issue #{}</a> created".format(link, number))
+                    msgBox.setText("Issue <a href='{}'>issue #{}</a> created".format(link, number))
                     msgBox.setStandardButtons(QMessageBox.Ok)
                     msgBox.exec_()
 
