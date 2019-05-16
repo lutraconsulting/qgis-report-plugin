@@ -9,14 +9,12 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
-from PyQt4.QtGui import QAction, QIcon, QMessageBox
-# Initialize Qt resources from file resources.py
-import resources
-
-import main_widget
-
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 import qgis.utils
-from qgis.utils import iface
+from .main_widget import *
+from .resources import *
 
 old_show_exception = None
 report_dialog = None
@@ -33,9 +31,8 @@ def close_report_dialog():
 def show_report_dialog(last_error=None):
     global report_dialog
     close_report_dialog()
-    report_dialog = main_widget.MainWidget(last_error)
+    report_dialog = MainWidget(last_error)
     report_dialog.show()
-    #report_dialog.exec_()
 
 
 def show_report_exception(etype, value, tb, msg, *args, **kwargs):
@@ -50,21 +47,20 @@ def show_report_exception(etype, value, tb, msg, *args, **kwargs):
                                  QMessageBox.Yes | QMessageBox.No)
 
     if reply == QMessageBox.Yes:
-
         last_error = {'etype': etype, 'value': value, 'tb': tb, 'msg': msg}
         show_report_dialog(last_error)
 
 
 class ReportPlugin:
-
-    def __init__(self):
+    def __init__(self, iface):
         self.action = None
+        self.iface = iface
 
     def initGui(self):
-        icon = QIcon(':/plugins/qgis-report-plugin/images/icon.png')
-        self.action = QAction(icon, "Report!", iface.mainWindow())
-        self.action.triggered.connect(self.run)
-        iface.addToolBarIcon(self.action)
+        icon = QIcon(':/plugins/report/images/icon.png')
+        self.action = QAction(icon, "Report!", self.iface.mainWindow())
+        self.action.triggered.connect(show_report_dialog)
+        self.iface.addToolBarIcon(self.action)
 
         # hook to exception handling
         global old_show_exception
@@ -72,7 +68,7 @@ class ReportPlugin:
         qgis.utils.showException = show_report_exception
 
     def unload(self):
-        iface.removeToolBarIcon(self.action)
+        self.iface.removeToolBarIcon(self.action)
         del self.action
 
         close_report_dialog()
@@ -81,5 +77,3 @@ class ReportPlugin:
         global old_show_exception
         qgis.utils.showException = old_show_exception
 
-    def run(self):
-        show_report_dialog()

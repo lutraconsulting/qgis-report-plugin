@@ -10,8 +10,11 @@
 #---------------------------------------------------------------------
 
 import os
-from PyQt4.QtGui import QPixmap, QIcon, QColor
-from PyQt4.QtCore import QSettings
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from qgis.core import *
+from qgis.utils import *
 
 
 def get_file_path(*paths):

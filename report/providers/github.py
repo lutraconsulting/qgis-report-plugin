@@ -24,11 +24,13 @@ except ImportError:
 try:
     import requests
 except ImportError:
-    utils.add_deps('requests-2.10.0-py2.py3-none-any.whl')
+    utils.add_deps('requests-2.21.0-py2.py3-none-any.whl')
     import requests
+
 
 class GitHubApiError(ProviderApiError):
     pass
+
 
 class GitHubProvider(ProviderApiBase):
     def _set_tracker(self, tracker):
@@ -52,17 +54,18 @@ class GitHubProvider(ProviderApiBase):
         ok_codes = ['200', '201', '202']
         if resp.status_code in ok_codes:
             raise GitHubApiError("Invalid API GitHub Call ({})".format(resp.status_code))
-
         resp_json = resp.json()
         if isinstance(resp_json, dict):
             msg = resp_json.get("message", None)
             if msg and "Bad credentials" in msg:
                 raise GitHubApiError("Invalid GitHub access token")
-
+            if msg and "Not Found" in msg:
+                raise GitHubApiError("Token has no write rights (repo:Access public repositories)")
         return resp_json
 
     def _post(self, key, payload):
-        headers = {'Authorization': 'token ' + self.credentials}
+        headers = {'Authorization': 'token ' + self.credentials,
+                   'Accept': 'application/vnd.github.v3+json'}
         url = self.tracker + key
         r = requests.post(url, data=json.dumps(payload), headers=headers, verify=cacert_file)
         return self._parse_response(r)
