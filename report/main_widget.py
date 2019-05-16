@@ -250,9 +250,9 @@ class MainWidget(qtBaseClass, uiWidget):
                     msgBox.exec_()
 
                 except ProviderApiError as err:
-                    self._set_err(str(err))
+                    self._set_err(self.TrackerErrorLabel, str(err))
                     return
 
                 self.accept()
         else:
-            self._set_err("Invalid GitHub connection")
+            self._set_err(self.TrackerErrorLabel, "Invalid GitHub connection")

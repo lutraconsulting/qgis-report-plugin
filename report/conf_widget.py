@@ -30,14 +30,10 @@ class ConfigurationWidget(qtBaseClass, uiWidget):
 
     def _load_settings(self):
         github = self.provider['github']
-        creds = github.get_credentials()
-        if len(creds.split(":")) == 2:
-            self.GitUsernameLineEdit.setText(creds.split(":")[0])
-            self.GitTokenLineEdit.setText(creds.split(":")[1])
+        self.GitTokenLineEdit.setText(github.get_credentials())
 
     def _connect_signals(self):
         self.GitTokenLineEdit.editingFinished.connect(self._token_selected)
-        self.GitUsernameLineEdit.editingFinished.connect(self._token_selected)
         self.GitOkButton.clicked.connect(self._ok_clicked)
         self.GitHelpButton.clicked.connect(self._git_help_wanted)
 
@@ -52,8 +48,7 @@ class ConfigurationWidget(qtBaseClass, uiWidget):
 
     def _token_selected(self):
         git_token = self.GitTokenLineEdit.text()
-        git_name = self.GitUsernameLineEdit.text()
-        self.provider['github'].set_credentials(git_name + ":" + git_token)
+        self.provider['github'].set_credentials(git_token)
 
     def closeEvent(self, e):
         self._token_selected()

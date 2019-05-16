@@ -60,11 +60,12 @@ class GitHubProvider(ProviderApiBase):
             if msg and "Bad credentials" in msg:
                 raise GitHubApiError("Invalid GitHub access token")
             if msg and "Not Found" in msg:
-                raise GitHubApiError("Not Found Github Repository")
+                raise GitHubApiError("Token has no write rights (repo:Access public repositories)")
         return resp_json
 
     def _post(self, key, payload):
-        headers = {'Authorization': 'token ' + self.credentials}
+        headers = {'Authorization': 'token ' + self.credentials,
+                   'Accept': 'application/vnd.github.v3+json'}
         url = self.tracker + key
         r = requests.post(url, data=json.dumps(payload), headers=headers, verify=cacert_file)
         return self._parse_response(r)
