@@ -9,6 +9,5 @@
 ###########################################################################
 
 set -e
-cd report
-pyrcc5 -o resources.py  resources.qrc
-cd ..
+
+pyrcc4 -o resources.py  resources.qrc

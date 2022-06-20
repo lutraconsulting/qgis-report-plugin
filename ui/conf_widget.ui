@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>585</width>
-    <height>365</height>
+    <width>471</width>
+    <height>234</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -88,10 +88,10 @@
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="widget_3" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <widget class="QWidget" name="widget" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QLabel" name="GitLabel_2">
+          <widget class="QLabel" name="GitLabel">
            <property name="text">
             <string>Token</string>
            </property>
@@ -111,7 +111,7 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_2">
+          <spacer name="horizontalSpacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -138,6 +138,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.py"/>
+ </resources>
  <connections/>
 </ui>

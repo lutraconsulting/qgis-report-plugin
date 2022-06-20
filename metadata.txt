@@ -1,18 +1,17 @@
 ; the next section is mandatory
 [general]
 name=Report Plugin
-qgisMinimumVersion=3.4
-qgisMaximumVersion=3.99
+qgisMinimumVersion=2.0
+qgisMaximumVersion=2.99
 description=Plugin for fast reporting of issues to the tracker
-version=1.0.0
+version=0.2.1
 author=Peter Petrik for Lutra Consulting
 email=peter.petrik@lutraconsulting.co.uk
 about=Plugin for fast reporting of issues to the tracker.
 ; end of mandatory metadata
 
 ; start of optional metadata
-changelog= 1.0.0 QGIS 3 Release
- <p> 0.2.1 - Bug Fix Release
+changelog=0.2.1 - Bug Fix Release
  - Fix OSX SSL Error
  <p> 0.2 - Feature and Bug Fix Release
  - Colored labels selectable from List

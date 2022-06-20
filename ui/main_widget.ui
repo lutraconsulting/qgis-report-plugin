@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>648</width>
-    <height>663</height>
+    <width>594</width>
+    <height>643</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,7 +20,7 @@
    <string>Report issue</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../resources.qrc">
+   <iconset>
     <normaloff>:/plugins/qgis-report-plugin/images/icon.png</normaloff>:/plugins/qgis-report-plugin/images/icon.png</iconset>
   </property>
   <property name="modal">
@@ -285,6 +285,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.py"/>
+ </resources>
  <connections/>
 </ui>

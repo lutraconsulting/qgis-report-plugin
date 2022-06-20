@@ -39,6 +39,8 @@ class ProviderApiBase():
         self.tracker = tracker
 
     def _set_credentials(self, credentials):
+        if credentials:
+            credentials = credentials.strip()
         self.credentials = credentials
 
     def set_credentials(self, credentials):

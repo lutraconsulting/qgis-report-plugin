@@ -9,13 +9,19 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
-from PyQt5 import uic
-from .utils import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt4 import uic
+import platform
+import traceback
 
+import utils
+from PyQt4.QtCore import QSettings, Qt, QUrl
+from PyQt4.QtGui import QListWidgetItem, QMessageBox, QDesktopServices
+from qgis.core import QGis
 
-ui_file = get_ui_file('conf_widget.ui')
+from qgis.utils import available_plugins, pluginMetadata
+from qgis.utils import iface
+
+ui_file = utils.get_ui_file('conf_widget.ui')
 uiWidget, qtBaseClass = uic.loadUiType(ui_file)
 
 
@@ -38,7 +44,7 @@ class ConfigurationWidget(qtBaseClass, uiWidget):
         self.GitHelpButton.clicked.connect(self._git_help_wanted)
 
     def _git_help_wanted(self):
-        html = get_file_path('doc', 'github_token.html')
+        html = utils.get_file_path('doc', 'github_token.html')
         url = QUrl.fromLocalFile(html)
         QDesktopServices.openUrl(url)
 

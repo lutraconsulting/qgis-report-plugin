@@ -11,5 +11,5 @@
 
 
 def classFactory(iface):
-    from .report_plugin import ReportPlugin
-    return ReportPlugin(iface)
+    import report_plugin
+    return report_plugin.ReportPlugin()
